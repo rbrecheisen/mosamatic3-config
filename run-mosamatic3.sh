@@ -35,10 +35,14 @@ curl -L "$ENV_FILE" -o .env
 echo "Downloading nginx.conf..."
 curl -L "$NGINX_CONF_URL" -o nginx/nginx.conf
 
-echo "Pulling Docker images..."
+echo "Starting Mosamatic3..."
 docker compose pull
 
-echo "Starting Mosamatic3..."
+REM Start web first so Docker initializes the shared named volumes
+REM from a single container, avoiding a Docker volume population race.
+docker compose up -d web
+
+REM Now start the complete stack.
 docker compose up -d
 
 echo ""

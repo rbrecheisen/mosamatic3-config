@@ -23,7 +23,14 @@ powershell -NoProfile -ExecutionPolicy Bypass -Command "Invoke-WebRequest -Uri '
 powershell -NoProfile -ExecutionPolicy Bypass -Command "Invoke-WebRequest -Uri '%NGINX_CONF_URL%' -OutFile 'nginx\nginx.conf'"
 
 docker compose pull
+
+REM Start web first so Docker initializes the shared named volumes
+REM from a single container, avoiding a Docker volume population race.
+docker compose up -d web
+
+REM Now start the complete stack.
 docker compose up -d
+
 powershell -NoProfile -ExecutionPolicy Bypass -Command "docker compose logs -f --no-color 2>&1 | Tee-Object -FilePath '.\data\logs\docker-compose.log' -Append"
 
 pause
